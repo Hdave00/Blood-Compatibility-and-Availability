@@ -1,5 +1,5 @@
 # Set the base image
-FROM python:3.12
+FROM python:3.14 as build
 
 # Copy the current directory contents into the container
 COPY . /usr/src/app
@@ -12,6 +12,9 @@ WORKDIR /usr/src/app
 
 # Install dependencies
 RUN pip install -r requirements.txt
+
+FROM python:3.14
+COPY --from=build /usr/src/app /usr/src/app
 
 # Run the Django server
 CMD ["python3", "manage.py", "runserver", "0.0.0.0:8000"]
