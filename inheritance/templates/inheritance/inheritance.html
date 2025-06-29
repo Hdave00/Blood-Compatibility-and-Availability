@@ -1,0 +1,284 @@
+<!-- will show different visualizations once React is implemented -->
+
+{% extends "compatibility/layout.html" %}
+{% load static %}
+
+{% block body %}
+    <div class="container-fluid bg-dark text-white min-vh-100 p-5 d-flex flex-column align-items-center">
+        <!-- Title -->
+        <h1 class="mb-4 text-uppercase fw-bold text-center">Blood Inheritance Visualizer</h1>
+
+        <!-- the root section/div of react, which manages the buttons and displaying different things -->
+        <div id="blood-app" class="mb-4"></div>
+
+        <!-- inputs for blood type selection -->
+        <div class="card bg-secondary text-white p-4 shadow-lg mb-4" style="max-width: 500px;">
+            <h2 class="text-center">Select Parent Blood Types</h2>
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label for="parent1" class="form-label">Parent 1 Blood Type:</label>
+                    <select id="parent1" class="form-select">
+                        <option value="A">A</option>
+                        <option value="B">B</option>
+                        <option value="AB">AB</option>
+                        <option value="O">O</option>
+                    </select>
+                </div>
+                <div class="col-md-6">
+                    <label for="rh1" class="form-label">Rh Factor:</label>
+                    <select id="rh1" class="form-select">
+                        <option value="+">+</option>
+                        <option value="-">-</option>
+                    </select>
+                </div>
+                <div class="col-md-6">
+                    <label for="parent2" class="form-label">Parent 2 Blood Type:</label>
+                    <select id="parent2" class="form-select">
+                        <option value="A">A</option>
+                        <option value="B">B</option>
+                        <option value="AB">AB</option>
+                        <option value="O">O</option>
+                    </select>
+                </div>
+                <div class="col-md-6">
+                    <label for="rh2" class="form-label">Rh Factor:</label>
+                    <select id="rh2" class="form-select">
+                        <option value="+">+</option>
+                        <option value="-">-</option>
+                    </select>
+                </div>
+                <div class="col-12 text-center">
+                    <button id="generateTree" class="btn btn-danger btn-lg fw-bold mt-3 shadow">
+                        Generate Tree
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- inheritance visualizer (outside react component) -->
+        <div class="card bg-secondary text-white p-4 shadow-lg w-100">
+            <h2 class="text-center">Inheritance Tree</h2>
+            <div id="tree-container" style="height: 60vh;"></div>
+            <div id="explanation" class="text-white mt-3 fs-5 text-center"></div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block script %}
+    <!-- React & ReactDOM -->
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.6/babel.min.js"></script>
+
+    <!-- script tag for Three.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+    <!-- script tag for D3.js -->
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+
+    <!-- Three.js importmap link for teling the app where to get the files from -->
+    <script type="importmap">
+        {
+          "imports": {
+            "three": "https://cdn.jsdelivr.net/npm/three@0.174.0/build/three.module.js",
+            "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.174.0/examples/jsm/"
+          }
+        }
+    </script>
+
+    <!-- JS file links for both visualizations -->
+    <script src="{% static 'inheritance/inheritance.js' %}"></script>
+    <script type="module" src="{% static 'inheritance/bloodcell.js' %}"></script>
+
+    <!-- Three.js source link -->
+    <script src="https://cdn.jsdelivr.net/npm/three@0.174.0/build/three.min.js"></script>
+
+
+    <!-- React Component Script -->
+    <script type="text/babel">
+        function BloodApp() {
+            const [view, setView] = React.useState('');
+
+            return (
+                <div>
+                    <div className="d-flex justify-content-center mb-3">
+                        <button className="btn btn-primary m-2" onClick={() => setView('whatIsBlood')}>What is Blood?</button>
+                        <button className="btn btn-primary m-2" onClick={() => setView('bloodCells')}>Blood Cell Visualizer</button>
+                    </div>
+                    <div className="slide-in">
+                        {view === 'whatIsBlood' && <WhatIsBlood />}
+                        {view === 'bloodCells' && <BloodCells />}
+                    </div>
+                </div>
+            );
+        }
+
+        /* this will show a div with text and definitions, function and components of blood */
+        function WhatIsBlood() {
+            const imgStyle = { maxWidth: "100%", border: "2px solid red" };
+            return (
+                <div className="card p-4 bg-danger text-white shadow-lg">
+                    <h2 className="text-center fw-bold">What is Blood?</h2>
+                    <p className="fs-5 text-center">
+                        Blood is a specialized bodily fluid that delivers essential substances such as oxygen and nutrients to the cells and transports metabolic waste products away. It consists of different components, each with a crucial function.
+                    </p>
+
+                    {/* blood components */}
+                    <div className="row row-cols-1 row-cols-md-2 g-4 mt-3">
+                        {/* plasma */}
+                        <div className="col">
+                            <div className="card bg-white text-dark p-3 shadow">
+                                <h3 className="text-center text-danger">Plasma</h3>
+                                <p>
+                                    Plasma is the liquid component of blood, making up about <strong>55% of total blood volume</strong>. It carries water, salts, and enzymes and helps transport nutrients, hormones, and waste products.
+                                </p>
+                            </div>
+                        </div>
+
+                        {/* R B C */}
+                        <div className="col">
+                            <div className="card bg-white text-dark p-3 shadow">
+                                <h3 className="text-center text-danger">Red Blood Cells (RBCs)</h3>
+                                <p>
+                                    RBCs contain <strong>hemoglobin</strong>, which binds oxygen and delivers it to tissues. It give blood the red color and is essential for oxygen transport throughout the body.
+                                </p>
+                            </div>
+                        </div>
+
+                        {/* W B C */}
+                        <div className="col">
+                            <div className="card bg-white text-dark p-3 shadow">
+                                <h3 className="text-center text-danger">White Blood Cells (WBCs)</h3>
+                                <p>
+                                    WBCs are part of the immune system and help the body <strong>fight infections and diseases</strong>.
+                                    They come in various types, each playing a specific role in immune defense.
+                                </p>
+                            </div>
+                        </div>
+
+                        {/* Platelets */}
+                        <div className="col">
+                            <div className="card bg-white text-dark p-3 shadow">
+                                <h3 className="text-center text-danger">Platelets</h3>
+                                <p>
+                                    Platelets are <strong>cell fragments</strong> that help in blood clotting. When injuries occur, platelets clump together to
+                                    form a plug, preventing excessive bleeding.
+                                </p>
+                            </div>
+                        </div>
+
+                        {/* Importance of blood donation */}
+                        <div className="col">
+                            <div className="card bg-white text-dark p-3 shadow">
+                                <h3 className="text-center text-danger">Significance</h3>
+                                <p>
+                                    Donating blood might seem daunting or confusing as first. It is important to remember that <strong>all</strong> of us Human beings share the same red liquid that runs within us and <strong>enables us to care and give when someone is in need</strong>.
+                                    Blood donation and transfusion is a <strong>very careful and heavily regulated process, conducted only by professionals</strong>. In this age of biological awareness and ease of access to <strong>valuable and potentialy lifesaving information</strong>,
+                                    it is quite easy to reach out to your nearest <strong>hospital</strong>, <strong>blood drive campaign</strong> or even using the internet to find <strong>credible sources</strong> that can help guide through this process. Every country has its own blood donation system
+                                    and certified institutions that are licensed to do so. It is <strong>important</strong> to verify and consult the right place, though it is not complicated, <strong>due diligence is required</strong>.
+                                </p>
+                                <p>
+                                    The <strong>significance</strong> of donating any aspect of one's blood, be it plasma, platelets or the blood in its entirety, is <strong>volunteer driven</strong>. You can make a difference in another person's life that can mean <strong>life or death</strong>.
+                                    This simple yet extremely generous ability of donating blood, <strong>can save a lot of lives that would otherwise be lost</strong> by the scary frailty of <strong>blood loss</strong>, <strong>trauma</strong> or <strong>incompatibility</strong>. Be the difference and save a life as every drop makes a world of difference.
+                                </p>
+                                <p>
+                                    <strong>Disclaimer:-</strong> This web-application is <strong>not</strong> a source for blood donations or transfusions. It is an awareness and availability platform that enables the <strong>potentially life saving ability</strong> for people to know the availability of all different types of blood within a given
+                                    country/city/state, while <strong>respecting the anonymity and privacy of each user</strong>.
+                                </p>
+                            </div>
+                        </div>
+
+                        {/* Quick facts about different blood types || &rarr; for a right arrow (→) or &larr; for a left arrow (←) */}
+                        <div className="col">
+                            <div className="card bg-white text-dark p-3 shadow">
+                                <h3 className="text-center text-danger">Blood Facts</h3>
+                                <ul>
+                                    <li><strong>A+</strong> → Patients who are <strong>A+</strong> positive and <strong>AB+</strong> positive can receive <strong>A+</strong> positive red blood cells and platelets. Maintaining an adequate supply is crucial.</li>
+                                    <li><strong>A-</strong> → <strong>A-</strong> negative blood type contains red blood cells that can be used to save patients with <strong>A-</strong> negative, <strong>A+</strong> positive, <strong>AB-</strong> negative and <strong>AB+</strong> positive blood types.</li>
+                                    <li><strong>B+</strong> → <strong>B+</strong> positive red blood cells can be given to <strong>B+</strong> positive and <strong>AB+</strong> positive patients.</li>
+                                    <li><strong>B-</strong> → <strong>B-</strong> negative red blood cells can be used to help patients with <strong>B-</strong> negative, <strong>B+</strong> positive.</li>
+                                    <li><strong>AB+</strong> → Donors who are <strong>AB+</strong> positive are considered the <strong>universal plasma donors</strong> because this blood component can be transfused to any patient, regardless of their blood type.</li>
+                                    <li><strong>AB-</strong> → Donors who are <strong>AB-</strong> negative are the <strong>universal platelet and plasma donors</strong> because these blood components can be transfused to any patient.</li>
+                                    <li><strong>O+</strong> → <strong>O+</strong> positive red blood cells can be used to treat any patient with a <strong>positive Rh</strong> blood type, which makes a measurable difference in emergency situations.</li>
+                                    <li><strong>O-</strong> → <strong>O-</strong> negative red blood cells are compatible with all other blood types. This means that in critical emergencies — <strong>when there is no time to confirm a patient’s blood type — O-negative blood can make a lifesaving difference</strong>.</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* blood types and antigens section */}
+                    <div className="card bg-white text-dark p-4 shadow mt-4">
+                        <h3 className="text-center text-danger">Blood Types and Antigens</h3>
+                        <p>
+                            Blood type is determined by the presence or absence of <strong>A and B antigens</strong> on red blood cells,
+                            along with the <strong>Rh factor</strong>.This additional factor, the ‘Rh factor’ — determines whether your type is positive <strong>(+)</strong> or negative <strong>(-)</strong>.
+                            The combination of these antigens defines blood <strong>compatibility</strong> for transfusions.
+                        </p>
+                        <ul>
+                            <li>Donors who are <strong>AB+</strong> positive are the <strong>universal platelet and plasma</strong> donors because these blood components can be transfused to any patient.</li>
+                            <li>Donors who are <strong>O-</strong> negative are the <strong>universal blood type</strong>; O- negative red blood cells are compatible with <strong>all</strong> other blood types.
+                                This means that in <strong>critical emergencies — when there is no time to confirm a patient’s blood type — O- negative blood can make a lifesaving difference</strong>.</li>
+                        </ul>
+
+                        <div className="text-center">
+                            <img
+                                src="https://upload.wikimedia.org/wikipedia/commons/3/32/ABO_blood_type.svg"
+                                alt="Punnett Square Blood Types"
+                                className="img-fluid shadow rounded"
+                                style={imgStyle}
+                            />
+                            <p className="mt-2 fst-italic">Punnett Square showing ABO blood type inheritance (wikipedia) </p>
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+
+        /* this will render a Three.js visualization of blood cells with different blood types and antigens  */
+        function BloodCells() {
+            const containerRef = React.useRef(null);
+            const [bloodType, setBloodType] = React.useState("A");
+
+            React.useEffect(() => {
+                if (containerRef.current != null) {
+                    console.log("Container:", containerRef.current);
+
+                    containerRef.current.innerHTML = ""; // clear previous content
+
+                    // ensure the container ID is correctly passed
+                    const bloodCell = new BloodCell3D(containerRef.current, bloodType);
+
+                    return () => {
+                        if (bloodCell.dispose) {
+                            bloodCell.dispose(); // clean up Three.js objects
+                        }
+                        if (containerRef.current != null) {
+                            containerRef.current.innerHTML = ""; // null check for making sure the current component is unmounted before another one is selected
+                        }
+
+                    };
+                }
+            }, [bloodType]);
+
+            return (
+                <div className="card p-4 bg-secondary text-white">
+                    <h3>Blood Cell Visualization</h3>
+                    <div>
+                        <label>Select Blood Type: </label>
+                        <select value={bloodType} onChange={(e) => setBloodType(e.target.value)}>
+                            <option value="A">A</option>
+                            <option value="B">B</option>
+                            <option value="AB">AB</option>
+                            <option value="O">O</option>
+                        </select>
+                    </div>
+                    <div id="blood-cell-container" ref={containerRef}></div>
+                </div>
+            );
+        }
+
+        /* the root element is the inheritance visualiser, which means that will be the base state of the DOM and will be shown as default */
+        ReactDOM.createRoot(document.getElementById('blood-app')).render(<BloodApp />);
+
+    </script>
+{% endblock script %}

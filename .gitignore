@@ -1,0 +1,33 @@
+# The venv
+/bloodapp/
+
+# Duh...
+.env
+*.env
+
+# Testing dbase
+db.sqlite3
+
+# Ide stuff
+.vscode/
+
+# OS and miscellaneous files
+.DS_Store
+Thumbs.db
+
+# Cache and log files
+__pycache__/
+*.py[cod]
+*.so
+*.log
+
+# Tests and for me notes
+selenium-tests.py
+ForMe.md
+TODO.txt
+dev-requirements.txt
+
+# Docker related/transient files, incase generated at build time
+*.pid
+*.tar
+*.gz

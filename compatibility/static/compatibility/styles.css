@@ -1,0 +1,81 @@
+/* Navbar Link Hover Effect */
+.nav-link:hover {
+    color: #b71c1c; /* Dark red on hover */
+}
+
+/* active user style */
+.navbar .nav-item .nav-link.active {
+    font-weight: bold;
+}
+
+/* rounded pills for actions buttons */
+.rounded-pill {
+    border-radius: 50rem !important;
+}
+
+/* notification card positioned at bottom center */
+.notification-card {
+    position: fixed;
+    bottom: 20px; /* 20px from the bottom */
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1050; /* should be above other content */
+    background: white;
+    color: red;
+    padding: 12px 20px;
+    border-radius: 8px; /* rounded corners */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    max-width: 400px; /* setting a limit to the width of the card */
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    opacity: 0;
+    transition: opacity 0.5s ease, bottom 0.5s ease; /* smooth fade and slide in */
+}
+
+/* reverse progress bar (slim line) */
+.notification-progress {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    height: 4px; /* slim line */
+    background: red; /* red color for progress bar */
+    width: 100%;
+    transition: width linear; /* smooth shrinking effect */
+}
+
+/* show fade in animation */
+.notification-card.show {
+    opacity: 1;
+    bottom: 40px; /* moves up */
+}
+
+.suggestions-container {
+    background: white;
+    border: 1px solid #ccc;
+    border-top: none;
+    max-height: 200px;
+    overflow-y: auto;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    border-radius: 4px;
+}
+
+.suggestion-item {
+    padding: 8px 12px;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.suggestion-item:hover {
+    background: #f8d7da; /* light red */
+}
+
+.ascii-art {
+    position: fixed;
+    top: 80px;
+    right: 20px;
+    white-space: pre;
+    font-family: monospace;
+    line-height: 0.6;
+}

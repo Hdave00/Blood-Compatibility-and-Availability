@@ -1,0 +1,54 @@
+<!--returns and renders a list of all available donors-->
+{% extends "compatibility/layout.html" %}
+{% load static %}
+
+{% block body %}
+
+<!-- Notification Card -->
+<div id="notification-card" class="notification-card">
+    <span id="notification-message"></span>
+    <div id="notification-progress" class="notification-progress"></div>
+</div>
+
+<div class="container mt-4">
+    <!-- Header Section -->
+    <div class="bg-white shadow-sm rounded-3 p-4 mb-4 text-center">
+        <h2 class="text-danger">
+            <i class="bi bi-people-fill"></i> Registered Donors
+        </h2>
+        <p class="text-muted">Explore the list of registered donors ready to save lives.</p>
+    </div>
+
+    <!-- Filters -->
+    <form method="GET" action="{% url 'donor_list' %}" class="mb-4">
+        <div class="row">
+            <!-- Blood Type Filter -->
+            <div class="col-md-3 mb-3">
+                <label for="blood_type" class="form-label text-danger">Blood Type:</label>
+                <select name="blood_type" id="blood_type" class="form-select">
+                    <option value="">All</option>
+                    {% for blood_type, label in blood_types %}
+                    <option value="{{ blood_type }}" {% if request.GET.blood_type == blood_type %}selected{% endif %}>
+                        {{ label }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <!-- Country Filter -->
+            <div class="col-md-3 mb-3">
+                <label for="country" class="form-label text-danger">Country:</label>
+                <input type="text" name="country" id="country" class="form-control" value="{{ request.GET.country|default:'' }}">
+            </div>
+        </div>
+
+        <button type="submit" class="btn btn-danger">Filter</button>
+    </form>
+
+    <!-- Donor Cards Section -->
+    <div class="row g-4" id="donorList">
+        <!-- Donor Cards will be inserted dynamically via JS -->
+    </div>
+</div>
+
+{% endblock %}

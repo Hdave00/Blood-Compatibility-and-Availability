@@ -1,0 +1,5 @@
+#blood-cell-container {
+    width: 600px; /* twice as wide as it is tall for better viewing experience */
+    height: 300px;
+    /*border: 1px solid white;  for debugging visibility */
+}

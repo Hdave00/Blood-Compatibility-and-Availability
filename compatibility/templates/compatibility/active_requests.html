@@ -1,0 +1,114 @@
+{% extends "compatibility/layout.html" %}
+{% load static %}
+
+{% block body %}
+
+<!-- Notification Card -->
+<div id="notification-card" class="notification-card">
+    <span id="notification-message"></span>
+    <div id="notification-progress" class="notification-progress"></div>
+</div>
+
+<div class="container mt-4">
+    <!-- Header Section -->
+    <div class="bg-white shadow-sm rounded-3 p-4 mb-4 text-center">
+        <h2 class="text-danger">
+            <i class="bi bi-envelope-paper-heart"></i> Active Donation Requests
+        </h2>
+        <p class="text-muted">Here are people in need of blood donations.</p>
+    </div>
+
+    <!-- Filters -->
+    <form method="GET" action="{% url 'active_requests' %}" class="mb-4">
+        <div class="row">
+            <!-- Blood Type Filter -->
+            <div class="col-md-3 mb-3">
+                <label for="blood_type" class="form-label text-danger">Blood Type Needed:</label>
+                <select name="blood_type" id="blood_type" class="form-select">
+                    <option value="">All</option>
+                    {% for blood_type, label in blood_types %}
+                    <option value="{{ blood_type }}" {% if request.GET.blood_type == blood_type %}selected{% endif %}>
+                        {{ label }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <!-- Country Filter -->
+            <div class="col-md-3 mb-3">
+                <label for="country" class="form-label text-danger">Country:</label>
+                <input type="text" name="country" id="country" class="form-control" value="{{ selected_country }}">
+            </div>
+        </div>
+
+        <button type="submit" class="btn btn-danger">Filter</button>
+    </form>
+
+    <!-- Active Donation Requests Section -->
+    <div id="donationRequestsSection" class ="bg-light p-4 rounded">
+        <h4 class="text-danger mb-3">
+            <i class="bi bi-list"></i> Current Active Requests
+            <span id="requestCountBadge" class="badge bg-danger">0</span>
+        </h4>
+        <ul class="list-group" id="requestList">
+            <!-- Requests will be inserted dynamically via JS -->
+        </ul>
+    </div>
+</div>
+
+<div>
+    {% if active_requests.has_other_pages %}
+        <nav class="mt-4">
+            <ul class="pagination justify-content-center">
+
+                <!-- First Page -->
+                {% if active_requests.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page=1
+                        {% if request.GET.blood_type %}&blood_type={{ request.GET.blood_type }}{% endif %}
+                        {% if request.GET.country %}&country={{ request.GET.country }}{% endif %}">
+                            First
+                        </a>
+                    </li>
+
+                    <!-- Previous Page -->
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ active_requests.previous_page_number }}
+                        {% if request.GET.blood_type %}&blood_type={{ request.GET.blood_type }}{% endif %}
+                        {% if request.GET.country %}&country={{ request.GET.country }}{% endif %}">
+                            Previous
+                        </a>
+                    </li>
+                {% endif %}
+
+                <!-- Current Page Indicator -->
+                <li class="page-item disabled">
+                    <a class="page-link">Page {{ active_requests.number }} of {{ active_requests.paginator.num_pages }}</a>
+                </li>
+
+                <!-- Next Page -->
+                {% if active_requests.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ active_requests.next_page_number }}
+                        {% if request.GET.blood_type %}&blood_type={{ request.GET.blood_type }}{% endif %}
+                        {% if request.GET.country %}&country={{ request.GET.country }}{% endif %}">
+                            Next
+                        </a>
+                    </li>
+
+                    <!-- Last Page -->
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ active_requests.paginator.num_pages }}
+                        {% if request.GET.blood_type %}&blood_type={{ request.GET.blood_type }}{% endif %}
+                        {% if request.GET.country %}&country={{ request.GET.country }}{% endif %}">
+                            Last
+                        </a>
+                    </li>
+                {% endif %}
+
+            </ul>
+        </nav>
+    {% endif %}
+</div>
+
+{% endblock %}

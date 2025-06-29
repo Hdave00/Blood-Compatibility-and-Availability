@@ -1,0 +1,282 @@
+<!--using HERE maps API, this map is a page JUST TO SHOW:
+    A map of all users on the app.-->
+
+{% extends 'compatibility/layout.html' %}
+{% load static %}
+
+{% block body %}
+
+<div class="container mt-4">
+    <h2 class="text-center text-danger fw-bold">Blood Donation Map</h2>
+
+    <!-- Search Bar Section -->
+    <div class="row justify-content-center mt-3">
+        <div class="col-md-6">
+            <div class="input-group">
+                <input id="searchBox" type="text" class="form-control border-danger" placeholder="Search city/state/country">
+                <button class="btn btn-danger text-white" onclick="searchLocation()">Search</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filter Section -->
+    <div class="row justify-content-center mt-3">
+        <div class="col-md-8">
+            <div class="card border-danger">
+                <div class="card-body">
+                    <h5 class="card-title text-danger text-center fw-bold">Filter Available Donors</h5>
+                    <div class="row g-2">
+                        <!-- Blood Type Filter -->
+                        <div class="col-md-4">
+                            <select id="bloodTypeFilter" class="form-select border-danger">
+                                <option value="">All Blood Types</option>
+                                <option value="A+">A+</option>
+                                <option value="A-">A-</option>
+                                <option value="B+">B+</option>
+                                <option value="B-">B-</option>
+                                <option value="AB+">AB+</option>
+                                <option value="AB-">AB-</option>
+                                <option value="O+">O+</option>
+                                <option value="O-">O-</option>
+                            </select>
+                        </div>
+                        <!-- Location Filter -->
+                        <div class="col-md-6">
+                            <input id="locationFilter" type="text" class="form-control border-danger" placeholder="City/State/Country">
+                        </div>
+                        <!-- Apply Filter Button -->
+                        <div class="col-md-2">
+                            <button class="btn btn-danger w-100 text-white" onclick="applyFilters()">Apply</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Map Container -->
+    <div class="mt-4">
+        <div id="mapContainer" class="border border-danger rounded" style="width: 100%; height: 600px;"></div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        initMap();
+    });
+
+    const apiKey = "REMOVED";
+    let map;
+    let ui;
+
+    function initMap() {
+        const platform = new H.service.Platform({ apikey: apiKey });
+        const defaultLayers = platform.createDefaultLayers();
+
+        map = new H.Map(
+            document.getElementById('mapContainer'),
+            defaultLayers.vector.normal.map,
+            {
+                zoom: 4,
+                center: { lat: 20.5937, lng: 78.9629 }
+            }
+        );
+
+        ui = H.ui.UI.createDefault(map, defaultLayers);
+        new H.mapevents.Behavior(new H.mapevents.MapEvents(map));
+
+        fetchDonorData(map);
+    }
+
+    function fetchDonorData(map, filters = {}) {
+        let url = new URL('/api/donor-locations/', window.location.origin);
+
+        // append filters as url parameters
+        Object.keys(filters).forEach(key => {
+            if (filters[key]) url.searchParams.append(key, filters[key]);
+        });
+
+        fetch(url)
+            .then(response => response.json())
+            .then(data => {
+                console.log("Filtered API Response:", data);
+                displayDonorsOnMap(map, data);
+            })
+            .catch(err => console.error('Error fetching donor data:', err));
+    }
+
+    // get filter values and call fetchDonorData
+    function applyFilters() {
+        const bloodType = document.getElementById('bloodTypeFilter').value;
+        const location = document.getElementById('locationFilter').value;
+
+        const filters = { blood_type: bloodType, location: location };
+        fetchDonorData(map, filters);
+    }
+
+    function addRegionCircleOverlay(region, coords, count, bloodTypes) {
+        if (!coords) return;
+
+        console.log("Adding circle for:", region, "with count:", count, "and blood types:", bloodTypes);
+
+        // scale the radius (minimum 20km, grow by +5km per donor, cap it at 150km)
+        const radius = Math.min(20000 + (count * 5000), 150000);
+
+        const circle = new H.map.Circle(
+            new H.geo.Point(coords.lat, coords.lng),
+            radius,
+            {
+                style: { fillColor: 'rgba(255, 0, 0, 0.5)', strokeColor: 'red', lineWidth: 2 }
+            }
+        );
+        map.addObject(circle);
+
+        // create non interactive marker on centre of bubble
+        const centerMarker = new H.map.Marker(new H.geo.Point(coords.lat, coords.lng));
+        map.addObject(centerMarker);
+
+        // text format for info bubble
+        const infoText = `
+            <div style="padding: 10px; font-size: 14px;">
+                <strong>${region}</strong><br>
+                <strong>${count} Donor${count !== 1 ? 's' : ''}</strong><br>
+                ${bloodTypes}
+            </div>`;
+
+        // crate an info bubble hidden by default
+        let infoBubble = new H.ui.InfoBubble({ lat: coords.lat, lng: coords.lng }, { content: infoText });
+
+        // keep bubble hidden until clicked
+        infoBubble.close();
+
+        // Add the bubble to the map UI
+        ui.addBubble(infoBubble);
+
+        // Handle click event on the circle
+        circle.addEventListener('tap', () => {
+            console.log("Circle clicked:", region);
+
+            // close all other bubbles before opening this one, iterate over each bubble object
+            ui.getBubbles().forEach(bubble => bubble.close());
+
+            // position bubble above centre to avoid blocking the tag
+            infoBubble.setPosition({ lat: coords.lat + 0.05, lng: coords.lng });
+            infoBubble.open();
+        });
+    }
+
+    function displayDonorsOnMap(map, donors) {
+        const regionCounts = {};
+        // console.log("Processing donors for map:", donors);
+
+        donors.forEach(regionData => {
+            const { region, count, blood_types } = regionData;
+
+            if (!regionCounts[region]) {
+                regionCounts[region] = { count: 0, bloodTypes: blood_types };
+            }
+
+            regionCounts[region].count += count; // incraese donor count
+        });
+
+        console.log("Region counts:", regionCounts);
+
+        let firstLocation = null; // track first valid location to center the map
+        let delay = 0;
+
+        Object.entries(regionCounts).forEach(([region, data], index) => {
+            setTimeout(() => {
+                getApproximateRegionCoords(region, (coords) => {
+                    if (!coords) return;
+
+                    addRegionCircleOverlay(region, coords, data.count, data.bloodTypes);
+
+                    // center the map on the first valid location
+                    if (!firstLocation && index === 0) {
+                        firstLocation = coords;
+                        map.setCenter(coords);
+                        map.setZoom(10); // adjust zoom fpr visibility
+                    }
+                });
+            }, delay);
+            delay += 100; // stagger requests
+        });
+    }
+
+    const geocodeCache = {};  // cache to store previous geocoded locations
+
+    function getApproximateRegionCoords(region, callback) {
+        if (!region.trim()) {
+            console.warn("Skipping empty region query.");
+            callback(null);
+            return;
+        }
+
+        if (geocodeCache[region]) {
+            // console.log("Using cached geocode for:", region);
+            callback(geocodeCache[region]);
+            return;
+        }
+
+        setTimeout(() => {  // delay 250ms per request
+            fetch(`https://geocode.search.hereapi.com/v1/geocode?q=${encodeURIComponent(region)}&apiKey=${apiKey}`)
+                .then(response => {
+                    if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.items && data.items.length > 0) {
+                        const location = { lat: data.items[0].position.lat, lng: data.items[0].position.lng };
+                        geocodeCache[region] = location;  // store in cache
+                        // console.log(`Geocoded ${region}:`, location);
+                        callback(location);
+                    } else {
+                        console.warn(`No approximate location found for: ${region}`);
+                        callback(null);
+                    }
+                })
+                .catch(error => {
+                    console.error(`Geocoding error for ${region}:`, error);
+                    callback(null);
+                });
+        }, 250 * Object.keys(geocodeCache).length);  // using cached length to dynamically stagger calls
+    }
+
+    const searchBox = document.getElementById('searchBox');
+
+    searchBox.addEventListener('change', () => {
+        const query = searchBox.value;
+        searchLocation(query);
+    });
+
+    function searchLocation(query) {
+        fetch(`https://geocode.search.hereapi.com/v1/geocode?q=${encodeURIComponent(query)}&apiKey=${apiKey}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.items.length > 0) {
+                    const location = data.items[0].position;
+                    map.setCenter({ lat: location.lat, lng: location.lng });
+                    map.setZoom(10);
+
+                    // fetch donor data for this region
+                    fetchDonorDataForRegion(query);
+                } else {
+                    alert("Location not found.");
+                }
+            })
+            .catch(error => console.error("Geocoding error:", error));
+    }
+
+    // function to fetch donor data for a specific region
+    function fetchDonorDataForRegion(region) {
+        fetch(`/api/donor-locations/?region=${encodeURIComponent(region)}`)
+            .then(response => response.json())
+            .then(data => {
+                console.log("Filtered API Response:", data);
+                displayDonorsOnMap(map, data);
+            })
+            .catch(err => console.error(' Error fetching filtered donor data:', err));
+    }
+</script>
+
+{% endblock %}

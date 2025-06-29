@@ -1,0 +1,51 @@
+{% extends "compatibility/layout.html" %}
+{% load static %}
+
+{% block body %}
+<div class="container d-flex justify-content-center align-items-center min-vh-100">
+    <div class="col-md-6 col-lg-4">
+        <!-- Login Card -->
+        <div class="card shadow-lg border-0 rounded-3">
+            <div class="card-body p-4">
+                <!-- Header -->
+                <h2 class="text-danger text-center mb-4">
+                    <i class="bi bi-box-arrow-in-right"></i> Login
+                </h2>
+
+                <!-- Error Message (for what went wrong) -->
+                {% if message %}
+                    <div class="alert alert-danger text-center" role="alert">
+                        {{ message }}
+                    </div>
+                {% endif %}
+
+                <!-- Login Form -->
+                <form action="{% url 'login' %}" method="post" autocomplete="off">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label for="username" class="form-label">Username</label>
+                        <input autofocus class="form-control" type="text" name="username" id="username" placeholder="Enter your username" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="password" class="form-label">Password</label>
+                        <input class="form-control" type="password" name="password" id="password" placeholder="Enter your password" required>
+                    </div>
+
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-danger rounded-pill">
+                            <i class="bi bi-box-arrow-in-right"></i> Login
+                        </button>
+                    </div>
+                </form>
+
+                <!-- Registration Page Link -->
+                <p class="mt-3 text-center">
+                    Don't have an account?
+                    <a href="{% url 'register' %}" class="text-danger fw-bold">Register here</a>.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

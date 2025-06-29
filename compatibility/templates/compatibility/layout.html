@@ -1,0 +1,154 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="csrf-token" content="{{ csrf_token }}">
+        <title>{% block title %} Blood Availability & Compatibility {% endblock %}</title>
+
+
+        <!-- HERE map API -->
+        <script src="https://js.api.here.com/v3/3.1/mapsjs-core.js"></script>
+        <script src="https://js.api.here.com/v3/3.1/mapsjs-service.js"></script>
+        <script src="https://js.api.here.com/v3/3.1/mapsjs-ui.js"></script>
+        <script src="https://js.api.here.com/v3/3.1/mapsjs-mapevents.js"></script>
+        <link rel="stylesheet" href="https://js.api.here.com/v3/3.1/mapsjs-ui.css" />
+
+        <!-- Bootstrap CSS -->
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
+              integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+        <!-- Bootstrap 5 JS -->
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" defer></script>
+
+        <!-- Bootstrap Icons -->
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+
+        <!-- Custom CSS from both apps, Inheritance & Compatibility -->
+        <link href="{% static 'compatibility/styles.css' %}" rel="stylesheet">
+        <link rel="stylesheet" type="text/css" href="{% static 'inheritance/styles.css' %}">
+    </head>
+
+    <body class="bg-light">
+        <!-- Navigation Bar -->
+        <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm rounded-3 p-3 mb-4">
+            <a class="navbar-brand fw-bold text-danger" href="{% url 'index' %}">
+                <i class="bi bi-droplet-fill text-danger"></i> Blood Compatibility
+            </a>
+
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+                    aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+
+                    <!-- Links Visible to Everyone -->
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'inheritance_page' %}">Inheritance</a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'about' %}">
+                            <i class="bi bi-exclamation-circle"></i>About</a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'check_compatibility' %}">
+                            <i class="bi bi-heart"></i> Check Compatibility
+                        </a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'donation_history' %}">
+                            <i class="bi bi-clock-history"></i> Request History
+                        </a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'map' %}">
+                            <i class="bi bi-map"></i> Availability Map
+                        </a>
+                    </li>
+
+                    {% if user.is_authenticated %}
+                        <!-- Links for Logged-In Users -->
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'user_profile' user.id %}">
+                                <i class="bi bi-person-circle"></i> <strong>{{ user.username }}</strong>
+                            </a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'donor_list' %}">
+                                <i class="bi bi-people-fill"></i> Active Donors
+                            </a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'active_requests' %}">
+                                <i class="bi bi-envelope-paper-heart-fill"></i> Active Requests
+                            </a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a class="nav-link text-danger ms-2" href="{% url 'logout' %}">
+                                <i class="bi bi-box-arrow-right"></i> Log Out
+                            </a>
+                        </li>
+
+                    {% else %}
+                        <!-- Links for Guests (Not Logged-In Users) -->
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'login' %}">
+                                <i class="bi bi-box-arrow-in-right"></i> Log In
+                            </a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'register' %}">
+                                <i class="bi bi-person-plus"></i> Register as Donor
+                            </a>
+                        </li>
+                    {% endif %}
+
+                </ul>
+            </div>
+        </nav>
+
+        <!-- for CSRF security -->
+        <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+
+        <!-- Main Body Content -->
+        <div class="container mt-4">
+            {% block body %}
+            {% endblock %}
+        </div>
+
+        <!-- JavaScript, SRI Hash from (https://www.srihash.org/) -->
+        {% block script %}
+            <script src="{% static 'compatibility/script.js' %}?v={{ request.user.id }}&cache={{ now|date:'U' }}" defer></script>
+            <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
+        {% endblock %}
+    </body>
+    </html>
+
+
+
+
+<!--
++-+-+-+-+-+ +-+-+-+ +-+-+-+ +-+-+-+-+-+ +-+-+-+ +-+ +-+-+-+-+-+ +-+-+-+ +-+ +-+-+-+-+-+ +-+-+-+ +-+ +-+-+-+-+-+ +-+-+-+ +-+ +-+-+-+-+-+ +-+-+-+ +-+-+-+-+- +-+ 
+01000010110110011011110110111101100100 01100110110111101110010 0111010011010001100101 01100010110110011011110110111101100100 011001110110111101100100 00100001 
++-+-+-+-+-+ +-+-+-+ +-+-+-+ +-+-+-+-+-+ +-+-+-+ +-+ +-+-+-+-+-+ +-+-+-+ +-+ +-+-+-+-+-+ +-+-+-+ +-+ +-+-+-+-+-+ +-+-+-+ +-+ +-+-+-+-+-+ +-+-+-+ +-+-+-+-+- +-+ 
+
+    ===   ===
+    \\ //
+    ====X====
+    // \\
+    =========
+    | | | | |     
+-->

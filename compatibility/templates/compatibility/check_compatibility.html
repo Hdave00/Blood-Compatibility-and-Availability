@@ -1,0 +1,78 @@
+{% extends "compatibility/layout.html" %}
+{% load static %}
+
+{% block body %}
+    <div class="container mt-4">
+        <div class="row">
+            <div class="col-md-8 mx-auto">
+                <div class="card p-4 shadow-lg border-danger">
+                    <h2 class="mb-4 text-center text-danger">
+                        <i class="bi bi-droplet-fill text-danger"></i> Check Blood Compatibility
+                    </h2>
+
+                    <!-- Small Description for Users -->
+                    <p class="text-center text-muted">
+                        Select a donor and recipient blood type to check their compatibility.
+                    </p>
+
+                    <!-- Hidden Compatibility Data for JS -->
+                    <script id="compatibility-data" type="application/json">
+                        {{ compatibility_chart|safe }}
+                    </script>
+
+                    <!-- Blood Type Selection -->
+                    <div class="mb-3">
+                        <label for="donor_blood" class="form-label text-danger"><strong>Your (Donor) Blood Type:</strong></label>
+                        <select id="donor_blood" class="form-select border-danger text-danger">
+                            <option value="">-- Select Blood Type --</option>
+                            {% for type in blood_types %}
+                                <option value="{{ type }}">{{ type }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="recipient_blood" class="form-label text-danger"><strong>Recipient's Blood Type:</strong></label>
+                        <select id="recipient_blood" class="form-select border-danger text-danger">
+                            <option value="">-- Select Blood Type --</option>
+                            {% for type in blood_types %}
+                                <option value="{{ type }}">{{ type }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <!-- Check Compatibility Button -->
+                    <button id="check-compatibility-btn" class="btn btn-outline-danger w-100 mb-3">
+                        <i class="bi bi-search"></i> Check Compatibility
+                    </button>
+
+                    <!-- Loading Indicator -->
+                    <div id="loading-indicator" class="text-center d-none">
+                        <div class="spinner-border text-danger" role="status">
+                            <span class="visually-hidden">Checking...</span>
+                        </div>
+                    </div>
+
+                    <!-- Result Message -->
+                    <div id="result-message" class="alert d-none mt-3 text-center fw-bold" role="alert"></div>
+
+                    <!-- Blood Type Compatibility Chart -->
+                    <div class="text-center">
+                        <img
+                            src="https://www.blood.ca/sites/default/files/DonorRecipient-Chart_1.jpeg"
+                            alt="Blood Type Compatibility Chart"
+                            class="img-fluid shadow rounded d-block mx-auto"
+                            style="width: 50%; height: auto;"
+                        />
+                        <p class="mt-2 fst-italic text-center">
+                            Blood Type Compatibility Chart
+                            <a href="https://www.blood.ca/en/stories/blood-type-compatibility-which-blood-types-are-compatible-each-other">
+                                (Canadian Blood Services)
+                            </a>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

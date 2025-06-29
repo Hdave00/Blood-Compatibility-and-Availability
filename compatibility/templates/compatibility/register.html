@@ -1,0 +1,138 @@
+{% extends "compatibility/layout.html" %}
+{% load static %}
+
+{% block body %}
+    <div class="container d-flex justify-content-center align-items-center min-vh-100">
+        <div class="col-md-8 col-lg-6">
+            <div class="card shadow-lg border-0 rounded-3">
+                <div class="card-body p-4">
+
+                    <!-- Header -->
+                    <h2 class="text-danger text-center mb-4">
+                        <i class="bi bi-person-plus-fill"></i> Register
+                    </h2>
+
+                    <!-- Global Form Errors (from django forms) -->
+                    {% if user_form.errors or donor_form.errors %}
+                        <div class="alert alert-danger text-center">
+                            <strong>Please fix the errors below and try again.</strong>
+                        </div>
+                    {% endif %}
+
+                    <!-- Registration Form -->
+                    <form action="{% url 'register' %}" method="post">
+                        {% csrf_token %}
+
+                        <!-- User Information -->
+                        <fieldset class="mb-4">
+                            <legend class="h4 text-danger mb-3">
+                                <i class="bi bi-person-fill"></i> Account Information
+                            </legend>
+
+                            <!-- Username -->
+                            <div class="mb-3">
+                                <label for="id_username" class="form-label"><strong>Username</strong></label>
+                                {{ user_form.username }}
+                                {% if user_form.username.errors %}
+                                    <div class="text-danger small mt-1">
+                                        {{ user_form.username.errors.0 }}
+                                    </div>
+                                {% endif %}
+                            </div>
+
+                            <!-- Email -->
+                            <div class="mb-3">
+                                <label for="id_email" class="form-label"><strong>Email Address</strong></label>
+                                {{ user_form.email }}
+                                {% if user_form.email.errors %}
+                                    <div class="text-danger small mt-1">
+                                        {{ user_form.email.errors.0 }}
+                                    </div>
+                                {% endif %}
+                            </div>
+
+                            <!-- Password -->
+                            <div class="mb-3">
+                                <label for="id_password1" class="form-label"><strong>Password</strong></label>
+                                {{ user_form.password1 }}
+                                {% if user_form.password1.errors %}
+                                    <div class="text-danger small mt-1">
+                                        {{ user_form.password1.errors.0 }}
+                                    </div>
+                                {% endif %}
+                                <small class="text-muted">Your password must be at least 8 characters long and not too similar to your username.</small>
+                            </div>
+
+                            <!-- Confirm Password -->
+                            <div class="mb-3">
+                                <label for="id_password2" class="form-label"><strong>Confirm Password</strong></label>
+                                {{ user_form.password2 }}
+                                {% if user_form.password2.errors %}
+                                    <div class="text-danger small mt-1">
+                                        {{ user_form.password2.errors.0 }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            <small class="text-muted">Please remember your password as the application cannot reset your password yet.</small>
+                        </fieldset>
+
+                        <!-- Donor Information -->
+                        <fieldset>
+                            <legend class="h4 text-danger mt-4 mb-3">
+                                <i class="bi bi-heart-pulse"></i> Become a Volunteer Blood Donor
+                            </legend>
+
+                            <!-- Blood Type -->
+                            <div class="mb-3">
+                                <label for="id_blood_type" class="form-label"><strong>Blood Type</strong></label>
+                                {{ donor_form.blood_type }}
+                                {% if donor_form.blood_type.errors %}
+                                    <div class="text-danger small mt-1">
+                                        {{ donor_form.blood_type.errors.0 }}
+                                    </div>
+                                {% endif %}
+                            </div>
+
+                            <!-- Location Autocomplete -->
+                            <div class="mb-3">
+                                <label for="locationAutocomplete" class="form-label"><strong>Location</strong></label>
+                                <input type="text" id="locationAutocomplete" placeholder="Start typing city/country" class="form-control">
+                                <button type="button" id="autodetectLocation" class="btn btn-danger mt-2">Autodetect Location</button>
+                                <div class="form-text">You can manually enter or autodetect your location.</div>
+                            </div>
+
+                            <!-- Hidden Fields for City & Country -->
+                            <input type="hidden" id="id_city" name="city">
+                            <input type="hidden" id="id_country" name="country">
+
+                            <!-- Latitude & Longitude -->
+                            <input type="hidden" id="id_latitude" name="latitude" value="">
+                            <input type="hidden" id="id_longitude" name="longitude" value="">
+
+                            <!-- Availability -->
+                            <div class="form-check mb-4">
+                                {{ donor_form.availability }}
+                                <label for="id_availability" class="form-check-label">
+                                    Available for blood donation
+                                </label>
+                            </div>
+                        </fieldset>
+
+                        <!-- Submit Button -->
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-danger btn-lg">
+                                <i class="bi bi-check-circle"></i> Register
+                            </button>
+                        </div>
+
+                        <!-- Login Link -->
+                        <p class="mt-4 text-center">
+                            Already have an account? <a href="{% url 'login' %}" class="text-danger fw-bold">Log in here</a>.
+                        </p>
+                    </form>
+
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

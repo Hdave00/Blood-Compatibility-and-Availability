@@ -1,0 +1,140 @@
+{% extends "compatibility/layout.html" %}
+{% load static %}
+
+{% block body %}
+    <div class="container mt-5">
+        <!-- Main Heading -->
+        <div class="text-center p-4 mb-4 border border-danger rounded shadow-sm bg-white">
+            <h1 class="display-4 text-danger">About the Blood Compatibility & Availability App</h1>
+            <p class="lead text-dark">
+                An open-source platform promoting blood donation awareness and providing real-time blood availability data worldwide.
+            </p>
+        </div>
+
+        <!-- Introduction Section -->
+        <div class="p-4 mb-4 border rounded shadow-sm bg-light">
+            <h2 class="text-danger">The Purpose</h2>
+            <p class="fs-5 text-dark">
+                The Blood Compatibility & Availability web application is not an official medical tool, nor is it a medical entity but a <strong>volunteer based</strong> platform for users to make their blood type available anonymously to provide knowledge
+                about the availability of a given blood type at a given location and an educational resource aimed at spreading awareness about:
+            </p>
+            <ul class="text-dark">
+                <li>The importance of blood donation</li>
+                <li>Understanding blood types and their inheritance</li>
+                <li>Blood antigens, alleles, red blood cells, and plasma</li>
+                <li>Tracking global blood availability for emergencies or people in urgent need of blood</li>
+                <li><strong>NOTE: The application attempts at reducing the barrier to entry to blood donations, and educating people about the importance of blood donations and what makes up the life force that is blood.
+                    Once first contact is made, or a user decides to donate blood to a local hospital or a blood donation campaign, it is <u><strong>strongly advised and recommended</strong></u> to take official channels/means from there on.
+                    This means, going to the local hospital for further guidance and procedures, if mutual users have agreed to donate blood and recieve donor's blood, make sure you go to the right authorities/institutions like Hospitals and Blood Drive Campaigns
+                    for the actual procedure!
+                </strong></li>
+            </ul>
+        </div>
+
+        <!-- Privacy and Data Policy -->
+        <div class="p-4 mb-4 border border-danger rounded shadow-sm bg-white">
+            <h2 class="text-danger">Privacy and User Protection</h2>
+            <p class="text-dark">
+                This platform strictly follows a <strong>no commercial data collection policy</strong>. User privacy is the top priority:
+            </p>
+            <ul class="text-dark">
+                <li>Your exact location is NEVER shared with other users.</li>
+                <li>Only your username, email, blood type, and country are visible to others.</li>
+                <li>City and state/county details remain hidden unless you accept a request.</li>
+            </ul>
+        </div>
+
+        <!-- How the App Works -->
+        <div class="p-4 mb-4 border rounded shadow-sm bg-light">
+            <h2 class="text-danger">How It Works</h2>
+            <p class="text-dark">
+                Users can register as blood donors and provide general location data to update the interactive donor map. You don't even have to mention your city/state/country directly, as the app supports location selection via any one of the following options:
+            </p>
+            <ul class="text-dark">
+                <li>Landmark hospitals</li>
+                <li>Auto-detect location and Geolocation</li>
+                <li>City, state, or country selection</li>
+            </ul>
+            <p class="text-dark">
+                This ensures that users can check for available blood types in their region for emergencies or plan donations.
+            </p>
+        </div>
+
+        <!-- Inspiration and sources -->
+        <div class="p-4 mb-4 border rounded shadow-sm bg-light">
+            <h2 class="text-danger">Blood saves lives</h2>
+            <p class="text-dark">
+                The inspiration came from the late and great <a href="https://www.bbc.com/news/articles/c5y4xqe60gyo">James Harrison</a> whose plasma saved the lives of more than two million infants.
+                I encourage you to read the article and visit the <a href="{% url 'inheritance_page' %}" class="btn btn-danger btn-sm shadow">Inheritance</a> section of this web-app and learn more about blood.
+                This goes to show that even the simplest of gestures, as important as they are, can make a massive difference. More than two million lives saved by the action of just one person who dared
+                to take an initiative, how the world could be if everyone made the same effort. Even if this application saves the life of one person, it would have fulfilled its goal.
+                This life force runs in us all and as such, we can share with those in need. A small action can make a life of difference, be it a wounded soldier with blood loss trauma, a person
+                suffering with a disease that needs frequent blood transplants, or a simple surgery that required excess blood. Due to the nature of blood compatibility, we are <strong>always
+                in a shortage of blood, be it for antibodies, marrow, plasma, platelets</strong> etc. As human beings we dont get the luxury to choose what we are born with. We do however have the luxury of making a choice
+                to make a difference in someone else's.
+            </p>
+            <p>
+                This web-app uses a multitude of educational material and references medical information. As is the nature of research and science, the
+                information might change and so it is paramount and actually heaviliy recommended to keep track of any changes. As such the sources used are mentioned in the dropdown below.<i class="bi bi-arrow-down"></i>
+            </p>
+            <strong><span id="date-time"></span></strong>
+
+            <!-- Accordion -->
+            <div class="accordion" id="accordionExample">
+                <div class="accordion-item">
+                    <h2 class="accordion-header" id="headingOne">
+                        <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                            <strong>Sources</strong>
+                        </button>
+                    </h2>
+                    <div id="collapseOne" class="accordion-collapse collapse show" aria-labelledby="headingOne" data-bs-parent="#accordionExample">
+                        <div class="accordion-body">
+                            <ul>
+                                <li>Blood compatibility data for making the algorithm that determines compatibility is taken from the <a href="https://www.blood.ca/en">Canadian Blood Services</a></li>
+                                <li>Blood knowledge based on the information in <a href="https://www.britannica.com/science/red-blood-cell">Britannica's</a> source</li>
+                                <li>3d model based on the wikipedia <a href="https://en.wikipedia.org/wiki/Blood_type">image</a> of a Red Blood Cell and its antigents (RBC). Ultimately also references <a href="https://archive.org/details/humanbiologyheal00scho">this study</a></li>
+                            </ul>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Call to Action -->
+        <div class="text-center p-4 border border-danger rounded shadow-sm bg-white">
+            <h2 class="text-danger">Get Involved</h2>
+            <p class="text-dark fs-5">
+                Blood donation saves lives! Join the cause, explore the availability, and help make a difference.
+            </p>
+            <a href="/register" class="btn btn-danger btn-lg shadow">Become a Donor</a>
+        </div>
+    </div>
+{% endblock %}
+{% block script %}
+<script>
+    function updateDateTime() {
+        const now = new Date();
+
+        // get day, month, and weekday
+        const day = now.getDate();
+        const month = now.toLocaleString('default', { month: 'long' });
+        const weekday = now.toLocaleString('default', { weekday: 'long' });
+
+        // format the day with suffix
+        const daySuffix = (day % 10 === 1 && day !== 11) ? 'st' : (day % 10 === 2 && day !== 12) ? 'nd' : (day % 10 === 3 && day !== 13) ? 'rd' : 'th';
+        const formattedDay = `${day}${daySuffix}`;
+
+        // get time
+        const time = now.toLocaleTimeString();
+
+        // combine everything
+        const dateTimeString = `${formattedDay} ${month}, ${weekday} ${time}`;
+
+        document.getElementById("date-time").textContent = dateTimeString;
+    }
+
+    updateDateTime();
+    setInterval(updateDateTime, 1000); // updates every second
+</script>
+{% endblock %}

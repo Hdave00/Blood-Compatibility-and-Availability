@@ -1,0 +1,167 @@
+<!-- will contain all donation requests and filters to sort by reverse chronological order, and ability to filter by blood type of request, or location
+ show ony 10 on each page. Eventually need to figure out a way to archive requests for database cleanup. Show requests only as old as a week -->
+
+{% extends "compatibility/layout.html" %}
+{% load static %}
+
+{% block body %}
+    <div class="container mt-5">
+        <!-- Page Header -->
+        <div class="text-center zone p-4 mb-4 border border-danger rounded shadow-sm">
+            <h1 class="display-4 text-danger">Donation History</h1>
+            <p class="lead text-dark">
+                Explore all past donation requests. Use the filters to refine your search by blood type, location, or status.
+            </p>
+        </div>
+
+        <!-- Filters -->
+        <form method="GET" action="{% url 'donation_history' %}" class="zone p-4 mb-4 border rounded shadow-sm">
+            <div class="row g-3 align-items-center">
+
+                <!-- Blood Type Filter -->
+                <div class="col-md-3">
+                    <label for="blood_type" class="form-label text-dark">Blood Type:</label>
+                    <select name="blood_type" id="blood_type" class="form-select">
+                        <option value="">All Blood Types</option>
+                        {% for blood_type, label in blood_types %}
+                            <option value="{{ blood_type }}" {% if request.GET.blood_type == blood_type %}selected{% endif %}>
+                                {{ label }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <!-- Status Filter -->
+                <div class="col-md-3">
+                    <label for="status" class="form-label text-dark">Status:</label>
+                    <select name="status" id="status" class="form-select">
+                        <option value="">All Status</option>
+                        {% for status, label in status_choices %}
+                            <option value="{{ status }}" {% if request.GET.status == status %}selected{% endif %}>
+                                {{ label }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <!-- City Filter -->
+                <div class="col-md-2">
+                    <label for="city" class="form-label text-dark">City:</label>
+                    <input type="text" name="city" id="city" class="form-control" value="{{ request.GET.city|default:'' }}">
+                </div>
+
+                <!-- Country Filter -->
+                <div class="col-md-2">
+                    <label for="country" class="form-label text-dark">Country:</label>
+                    <input type="text" name="country" id="country" class="form-control" value="{{ request.GET.country|default:'' }}">
+                </div>
+
+                <!-- Submit Button -->
+                <div class="col-md-12 d-flex align-items-end mt-3">
+                    <button type="submit" class="btn btn-danger w-100">Apply Filters</button>
+                </div>
+
+            </div>
+        </form>
+
+
+        <!-- Donation Requests Section -->
+        <div class="row">
+            {% if donation_requests %}
+                {% for request in donation_requests %}
+                    <div class="col-md-12 mb-4">
+                        <div class="zone p-4 border rounded shadow-sm bg-light">
+                            <h5 class="text-danger">Requested Blood Type: {{ request.blood_type_needed }}</h5>
+                            <p class="text-dark mb-1">
+                                <strong>Requested By:</strong>
+                                {% if user.is_authenticated and user.is_donor %}
+                                    {{ request.requester.username }}
+                                {% else %}
+                                    <em>Hidden</em>
+                                {% endif %}
+                            </p>
+                            <p class="text-dark mb-1"><strong>Location:</strong>
+                                {% if request.is_accepted %}
+                                    {{ request.location }}
+                                {% else %}
+                                    <em>Hidden until accepted</em>
+                                {% endif %}
+                            </p>
+                            <p class="text-dark mb-1"><strong>Status:</strong> {{ request.status }}</p>
+                            <p class="text-dark mb-3"><strong>Requested On:</strong> {{ request.created_at|date:"M d, Y H:i" }}</p>
+
+                            <!-- Compatibility Check Button -->
+                            <a href="{% url 'check_compatibility' %}" class="btn btn-outline-danger">Check Compatibility</a>
+                        </div>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <div class="col-12 text-center">
+                    <p class="text-muted">No donation requests found matching the criteria.</p>
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- Pagination -->
+        {% if donation_requests.has_other_pages %}
+            <nav class="mt-4">
+                <ul class="pagination justify-content-center">
+
+                    <!-- First Page Link -->
+                    {% if donation_requests.has_previous %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page=1
+                            {% if request.GET.blood_type %}&blood_type={{ request.GET.blood_type }}{% endif %}
+                            {% if request.GET.status %}&status={{ request.GET.status }}{% endif %}
+                            {% if request.GET.city %}&city={{ request.GET.city }}{% endif %}
+                            {% if request.GET.country %}&country={{ request.GET.country }}{% endif %}">
+                                First
+                            </a>
+                        </li>
+
+                        <!-- Previous Page Link -->
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ donation_requests.previous_page_number }}
+                            {% if request.GET.blood_type %}&blood_type={{ request.GET.blood_type }}{% endif %}
+                            {% if request.GET.status %}&status={{ request.GET.status }}{% endif %}
+                            {% if request.GET.city %}&city={{ request.GET.city }}{% endif %}
+                            {% if request.GET.country %}&country={{ request.GET.country }}{% endif %}">
+                                Previous
+                            </a>
+                        </li>
+                    {% endif %}
+
+                    <!-- Current Page Indicator -->
+                    <li class="page-item disabled">
+                        <a class="page-link" href="#">Page {{ donation_requests.number }} of {{ donation_requests.paginator.num_pages }}</a>
+                    </li>
+
+                    <!-- Next Page Link -->
+                    {% if donation_requests.has_next %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ donation_requests.next_page_number }}
+                            {% if request.GET.blood_type %}&blood_type={{ request.GET.blood_type }}{% endif %}
+                            {% if request.GET.status %}&status={{ request.GET.status }}{% endif %}
+                            {% if request.GET.city %}&city={{ request.GET.city }}{% endif %}
+                            {% if request.GET.country %}&country={{ request.GET.country }}{% endif %}">
+                                Next
+                            </a>
+                        </li>
+
+                        <!-- Last Page Link -->
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ donation_requests.paginator.num_pages }}
+                            {% if request.GET.blood_type %}&blood_type={{ request.GET.blood_type }}{% endif %}
+                            {% if request.GET.status %}&status={{ request.GET.status }}{% endif %}
+                            {% if request.GET.city %}&city={{ request.GET.city }}{% endif %}
+                            {% if request.GET.country %}&country={{ request.GET.country }}{% endif %}">
+                                Last
+                            </a>
+                        </li>
+                    {% endif %}
+
+                </ul>
+            </nav>
+        {% endif %}
+    </div>
+{% endblock body %}

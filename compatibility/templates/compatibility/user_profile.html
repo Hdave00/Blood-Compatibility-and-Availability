@@ -1,0 +1,197 @@
+<!--this page will show the user details as it will be the "profile page" of a user, and it will show all mathcing users, -->
+
+<!-- this page will have React and JS asynchronous json updates and generation of user profile data, like editing and deleting their account.-->
+{% extends "compatibility/layout.html" %}
+{% load static %}
+
+{% block body %}
+
+<!-- Notification Card -->
+<div id="notification-card" class="notification-card">
+    <span id="notification-message"></span>
+    <div id="notification-progress" class="notification-progress"></div>
+</div>
+
+<div class="container mt-5">
+    <div class="card p-4 shadow-lg border-0 rounded-4">
+
+        <!-- Profile Header -->
+        <h2 class="text-danger mb-4">
+            <i class="bi bi-person-circle"></i> Profile
+        </h2>
+
+        <!-- Profile Details (Static Display) -->
+        <div id="profile-details" class="mb-4">
+            <p><strong>Username:</strong> <span id="display-username" class="text-muted">{{ viewed_user.username }}</span></p>
+            <p><strong>Email:</strong> <span id="display-email" class="text-muted">{{ viewed_user.email }}</span></p>
+            <p><strong>Blood Type:</strong> <span id="display-blood-type" class="text-muted">{{ donor_profile.blood_type|default:"Not a donor" }}</span></p>
+            <!-- member since field -->
+            <p><strong>Member Since:</strong>
+                <span id="display-member-since" class="text-muted">
+                    {{ date_registered|date:"F j, Y" }}
+                </span>
+            </p>
+            <!--location display wrapped in a span and hidden until request accepted-->
+            <p><strong>Location:</strong>
+                <span id="display-location" class="text-muted">
+                    {% if request.user == viewed_user or request_accepted %}
+                        {{ donor_profile.location|default:"Not provided" }}
+                    {% else %}
+                        <em>Hidden until request is accepted</em>
+                    {% endif %}
+                </span>
+            </p>
+        </div>
+
+        <!-- Placeholder for requests if not own profile and only if the requester's blood type is compatible with the requested, donor's blood type -->
+
+        {% if is_own_profile %}
+            <!-- Matched Donors Section -->
+            <div class="container mt-4">
+                <h3 class="text-danger mb-3"><i class="bi bi-heart-pulse"></i> Matched Donors</h3>
+
+                <!-- Toggle Button for Matches -->
+                <button class="btn btn-outline-danger rounded-pill mb-3" id="toggleMatches">
+                    Hide Matches
+                </button>
+
+                <!-- Matches Container (Initially Visible) -->
+                <div id="matchedDonorsSection" class="p-3 bg-light rounded-3">
+                    <ul class="list-group" id="matchesList">
+                        <!-- Populated via JavaScript -->
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Accepted Donors Section -->
+            <div id="acceptedDonorsSection" class="p-3 bg-light rounded-3 mt-4">
+                <h3 class="text-danger mb-3"><i class="bi bi-person-check"></i> Accepted Donors</h3>
+                <ul class="list-group" id="acceptedMatchesList">
+                    {% if received_requests %}
+                        {% for request in received_requests %}
+                            {% for donor in request.accepted_donors.all %}
+                                <li class="list-group-item">
+                                    Donor: {{ donor.user.username }} - Blood Type: {{ donor.blood_type }}
+                                    {% if request.is_accepted %}
+                                        <br>Email: {{ donor.user.email }}
+                                        <br>Location: {{ donor.location|default:"Not provided" }}
+                                    {% else %}
+                                        <br>Location: Hidden until accepted
+                                    {% endif %}
+                                </li>
+                            {% endfor %}
+                        {% empty %}
+                            <li class="list-group-item text-muted">No accepted donors yet.</li>
+                        {% endfor %}
+                    {% else %}
+                        <li class="list-group-item text-muted">No accepted donors yet.</li>
+                    {% endif %}
+                </ul>
+            </div>
+
+            <!-- Pending Requests Section -->
+            <!-- Incoming Requests Section (Accept/Reject) -->
+            <div class="container mt-4">
+                <h3 class="text-danger"><i class="bi bi-envelope-heart-fill"></i> Incoming Requests</h3>
+                <ul class="list-group" id="incomingRequestsList">
+                    <!-- Incoming requests will be populated via JS -->
+                    <li class="list-group-item text-muted" id="noIncomingRequests">No incoming requests.</li>
+                </ul>
+            </div>
+
+            <!-- Outgoing Requests Section (Cancel) -->
+            <div class="container mt-4">
+                <h3 class="text-danger"><i class="bi bi-envelope-paper-heart"></i> Outgoing Requests</h3>
+                <ul class="list-group" id="outgoingRequestsList">
+                    {% for request in pending_requests %}
+                        <li class="list-group-item d-flex justify-content-between align-items-center" id="request-{{ request.id }}">
+                            Request to: <strong>{{ request.recipient.username }}</strong>
+                            (Blood Type: {{ request.recipient.donor_profile.blood_type|default:"N/A" }})
+                            <button class="btn btn-danger btn-sm cancel-request" data-request-id="{{ request.id }}">
+                                Cancel
+                            </button>
+                        </li>
+                    {% empty %}
+                        <li class="list-group-item text-muted">No pending requests.</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        {% endif %}
+
+        <!-- User ID for JavaScript Context -->
+        <div id="profile-container" data-user-id="{{ user.id }}"></div>
+
+        <!-- Edit Profile Form (Initially Hidden) -->
+        {% if is_own_profile %}
+        <form id="edit-profile-form" method="post" class="d-none mt-4">
+            {% csrf_token %}
+
+            <!-- Username -->
+            <div class="mb-3">
+                <label class="form-label"><strong>Username</strong></label>
+                <input type="text" id="username" class="form-control" value="{{ viewed_user.username }}">
+            </div>
+
+            <!-- Blood Type -->
+            <div class="mb-3">
+                <label class="form-label"><strong>Blood Type</strong></label>
+                <select id="blood_type" class="form-select">
+                    <option value="">Select blood type</option>
+                    {% for code, name in blood_types %}
+                        <option value="{{ code }}" {% if donor_profile.blood_type == code %}selected{% endif %}>
+                            {{ name }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <!-- Location (with Autocomplete Suggestions) -->
+            <div class="mb-3 position-relative">
+                <label class="form-label"><strong>Location</strong></label>
+                <input type="text" id="locationAutocomplete" name="location" class="form-control" value="{{ donor_profile.location|default:'' }}" autocomplete="off">
+                <ul id="location-suggestions" class="list-group position-absolute"></ul>
+                <button id="autodetectLocation" class="btn btn-outline-primary mt-2">Auto-detect Location</button>
+
+                <!-- Hidden City and Country Inputs -->
+                <input type="hidden" id="id_city" name="city" value="{{ donor_profile.city|default:'' }}">
+                <input type="hidden" id="id_country" name="country" value="{{ donor_profile.country|default:'' }}">
+                <!-- for latitude and longitude retreival/capture -->
+                <input type="hidden" id="id_latitude" name="latitude" value="">
+                <input type="hidden" id="id_longitude" name="longitude" value="">
+            </div>
+        </form>
+
+        <!-- Action Buttons -->
+        <div class="mt-4 d-flex flex-wrap gap-2">
+            <button id="editProfile" class="btn btn-danger rounded-pill">
+                <i class="bi bi-pencil-square"></i> Edit Profile
+            </button>
+            <button id="saveChanges" class="btn btn-success rounded-pill d-none">
+                <i class="bi bi-check-circle"></i> Save Changes
+            </button>
+            <button id="cancelEdit" class="btn btn-secondary rounded-pill d-none">
+                <i class="bi bi-x-circle"></i> Cancel
+            </button>
+            <button id="deleteAccount" class="btn btn-outline-danger rounded-pill">
+                <i class="bi bi-trash"></i> Delete Account
+            </button>
+        </div>
+        {% endif %}
+
+        <!-- Register as Donor -->
+        {% if not donor_profile and is_own_profile %}
+        <div class="mt-4">
+            <a href="{% url 'donor_register' %}" class="btn btn-warning rounded-pill">
+                <i class="bi bi-droplet-half"></i> Register as a Donor
+            </a>
+        </div>
+        {% endif %}
+
+    </div>
+</div>
+{% endblock %}
+
+{% block script %}
+<script src="{% static 'compatibility/script.js' %}?v={{ now|date:"U" }}" defer></script>
+
+{% endblock %}
