@@ -270,7 +270,7 @@ path("api/get_outgoing_requests/", views.get_outgoing_requests, name="outgoing_r
 - navigate to the newly opened port `8000` in your web browser (your IDE will likely prompt you to open the link)
 - interact with the application and follow its guidance
 
-### Notes to the staff:
+### Notes:
 
 - The `docker` should run everything automatically after installing the project, I made sure to test it, but it may fail if the right port is not created as Django's default is `8000` but on some systems it may prompt **two** error messages regarding **``CSRF_TRUSTED_ORIGINS``**, if that happens check `settings.py` and add - `ALLOWED_HOSTS = []` and/or `CSRF_TRUSTED_ORIGINS = ['https://localhost:8000']` , relaunch the application manually by running `python manage.py runserver` and it should run just fine.
 
