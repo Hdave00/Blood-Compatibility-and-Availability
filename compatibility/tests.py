@@ -41,6 +41,7 @@ class DonorTestCase(TestCase):
 
     # test valid country, city and state
     def test_valid_country_city_state(self):
+
         d1 = Donor.objects.get(city="Paris")
         self.assertEqual(d1.country, "France")
         self.assertEqual(d1.city, "Paris")
@@ -49,29 +50,36 @@ class DonorTestCase(TestCase):
         self.assertEqual(d2.state_or_county, "Maharashtra")
         self.assertEqual(d2.country, "India")
 
+
     # test invalid country/city/state
     def test_invalid_country_city_state(self):
+
         d3 = Donor.objects.get(city="London")
         self.assertNotEqual(d3.country, "France")
 
 
     # test availability
     def test_availability(self):
+
         d4 = Donor.objects.get(city="Tokyo")
         self.assertTrue(d4.availability)
 
         d3 = Donor.objects.get(city="London")
         self.assertFalse(d3.availability)
 
+
     # test valid donor
     def test_valid_donor(self):
+
         d4 = Donor.objects.get(city="Tokyo")
         self.assertIsNotNone(d4.blood_type)
         self.assertIsNotNone(d4.city)
         self.assertIsNotNone(d4.country)
 
+
     # test invalid donor (no location, no blood type provided)
     def test_invalid_donor(self):
+
         user_invalid = User.objects.create_user(username="invaliduser", password="testpass")
 
         # no city country or blood type
@@ -80,19 +88,25 @@ class DonorTestCase(TestCase):
         self.assertIsNone(donor_invalid.country)
         self.assertIsNone(donor_invalid.blood_type or None)
 
+
     # test valid blood type
     def test_valid_blood_type(self):
+
         d6 = Donor.objects.get(city="Berlin")
         self.assertIn(d6.blood_type, ["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"])
 
+
     # test invalid blood types
     def test_invalid_blood_type(self):
+
         user_invalid_blood = User.objects.create_user(username="invalidblood", password="testpass")
         donor_invalid = Donor.objects.create(user=user_invalid_blood, blood_type="X")
         self.assertNotIn(donor_invalid.blood_type, ["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"])
 
+
     # test update location
     def test_update_location(self):
+        
         d7 = Donor.objects.get(city="Sydney")
 
         # manually reset location to trigger update
@@ -104,8 +118,10 @@ class DonorTestCase(TestCase):
         self.assertEqual(d7.state_or_county, "New South Wales")
         self.assertEqual(d7.location, "Sydney, New South Wales, Australia")
 
+
     # test saving location
     def test_save_location(self):
+
         donor_new = Donor.objects.create(user=User.objects.create_user(username="savelocation", password="testpass"), blood_type="A+", city="Amsterdam", country="Netherlands")
         donor_new.save()
         self.assertEqual(donor_new.location, "Amsterdam, Netherlands")
@@ -115,6 +131,7 @@ class DonorTestCase(TestCase):
     # index page, use the context we pass in to the template, to check count of each, if its dynamic, change logic accordingly
     # testing the actual pages themselves and not just the data, for this we start with testing the default index page, using the Client import
     def test_index(self):
+
         c = Client()
         total_donors = Donor.objects.count()
         total_countries = Donor.objects.values("country").distinct().count()
@@ -131,6 +148,7 @@ class DonorTestCase(TestCase):
         self.assertEqual(response.context["total_cities"], total_cities)
         self.assertEqual(response.context["total_states_or_counties"], total_states_or_counties)
         self.assertEqual(response.context["total_blood_types"], total_blood_types)
+
 
     # test valid donor profile page, like in lecture, pass in the needed context
     def test_valid_donor_profile_page(self):
@@ -152,6 +170,7 @@ class DonorTestCase(TestCase):
         self.assertTrue("has_requested" in response.context)
         self.assertTrue("donor_contact_info" in response.context)
         self.assertEqual(response.context["date_registered"], d1.date_registered)
+
 
     # test invalid donor profile page (non existent user ID, 999)
     def test_invalid_donor_profile_page(self):

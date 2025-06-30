@@ -4,6 +4,7 @@ from .models import Donor, DonationRequest, User, BloodMatchHistory
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
+        
         model = User
         # exclude sensitive field
         exclude = ('password',)
@@ -13,6 +14,7 @@ class UserSerializer(serializers.ModelSerializer):
 # donor data, leading to partial updates and inconsistencies when reloading.
 
 class DonorSerializer(serializers.ModelSerializer):
+
     # nested user serializer (to avoid exposing sensitive data)
     user = serializers.SerializerMethodField()
 

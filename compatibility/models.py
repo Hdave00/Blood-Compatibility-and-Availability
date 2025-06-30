@@ -147,6 +147,7 @@ class DonationRequest(models.Model):
 
     def accept_request(self, donor):
         """ allows a donor to accept the request and reveals contact info """
+        
         if donor in self.donors.all():
             self.accepted_donors.add(donor)
             self.is_accepted = True
@@ -155,6 +156,7 @@ class DonationRequest(models.Model):
 
     def donor_contact_info(self, donor):
         """ returns donor contact info if the request is accepted """
+
         if donor in self.accepted_donors.all():
             return {"email": donor.user.email, "location": donor.location}
         return {"email": "Hidden until accepted", "location": "Hidden until accepted"}
@@ -175,6 +177,7 @@ class BloodMatchHistory(models.Model):
 
     def check_compatibility(self):
         """ determines if the donors blood is compatible with the recipients blood """
+        
         self.is_compatible = is_compatible(self.donor_blood, self.recipient_blood)
         return self.is_compatible
 
