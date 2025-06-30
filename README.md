@@ -129,7 +129,7 @@ This project brought together software engineering, design thinking, and scienti
 - Multi-Language support -> Django's `i18n` framework
 - Maybe an offline mode?
 - In app messaging system (E2E Encryption for GDPR compliance and ISO stuff)
-- 2FA 
+- 2FA, probably in the future
 
 #### Scaling ideas and commercialising
 - Badges for number of donations
