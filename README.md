@@ -121,6 +121,24 @@ This project brought together software engineering, design thinking, and scienti
 ---
 
 
+## Todo's and WIP implementations:-
+
+#### Dev goals for significant but approachable changes
+- ML based matchmaking with optimal donor recommendations based on things like proximity, compatibility and availability patterns. Could also predict regional shortages based on chronological data (if I find a viable dataset)
+- Notification system and not just in app popups (only ajax notifs are setup as of now)
+- Multi-Language support -> Django's `i18n` framework
+- Maybe an offline mode?
+- In app messaging system (E2E Encryption for GDPR compliance and ISO stuff)
+
+#### Scaling ideas and commercialising
+- Badges for number of donations
+- streaks? or perhaps an "impact tracker" ie, `you have helped n number of people`
+- A blood drive map with some community driven coordination, like notifications blood drive events and regions in particular need
+- Emergency mode / SOS broadcast signal for non blood-donation related things as well?
+- Donor health tracker, hemoglobin lvls last donation etc
+
+
+
 ## Table of Contents
 
 1. Features
