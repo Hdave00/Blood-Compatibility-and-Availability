@@ -65,7 +65,7 @@
         initMap();
     });
 
-    const apiKey = "";
+    const apiKey = "{{ here_api_key|escapejs }}";
     let map;
     let ui;
 
@@ -219,7 +219,7 @@
         }
 
         setTimeout(() => {  // delay 250ms per request
-            fetch(`https://geocode.search.hereapi.com/v1/geocode?q=${encodeURIComponent(region)}&apiKey=${apiKey}`)
+            fetch(`/api/geocode?q=${encodeURIComponent(region)}`)
                 .then(response => {
                     if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
                     return response.json();
@@ -250,7 +250,7 @@
     });
 
     function searchLocation(query) {
-        fetch(`https://geocode.search.hereapi.com/v1/geocode?q=${encodeURIComponent(query)}&apiKey=${apiKey}`)
+        fetch(`/api/geocode?q=${encodeURIComponent(query)}`)
             .then(response => response.json())
             .then(data => {
                 if (data.items.length > 0) {

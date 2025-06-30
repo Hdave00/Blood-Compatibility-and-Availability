@@ -848,11 +848,28 @@ def check_compatibility(request, request_id=None):
     })
 
 
+def geocode_proxy(request):
+    """ api interactins in the backend only """
+
+    query = request.GET.get("q")
+    if not query:
+        return JsonResponse({"error": "Missing query"}, status=400)
+
+    response = requests.get(
+        "https://geocode.search.hereapi.com/v1/geocode",
+        params={"q": query, "apiKey": HERE_API_KEY}
+    )
+
+    return JsonResponse(response.json())
+
+
 # Map-based Donor Search, using Here Maps API
 def map_view(request):
     """ Displays available donors on a map using a Maps API """
 
-    return render(request, "compatibility/map.html")
+    return render(request, "compatibility/map.html", {
+        "here_api_key": HERE_API_KEY
+    })
 
 
 # not possible yet- a notification system that alerts users when a match is found or when their request status changes

@@ -14,8 +14,10 @@ urlpatterns = [
     path("register/", views.register, name="register"),
     path("about/", views.about, name="about"),
     path("donation_history/", views.donation_history, name="donation_history"),
-    # fetch the map page and its details
+
+    # fetch the map page and its details, also the the geocode using HERE api key
     path('map/', views.map_view, name='map'),
+    path("api/geocode", views.geocode_proxy, name="geocode_proxy"),
 
 
     # HERE Map API endpoint urls here
