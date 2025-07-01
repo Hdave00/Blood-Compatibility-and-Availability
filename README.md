@@ -130,6 +130,7 @@ This project brought together software engineering, design thinking, and scienti
 - Maybe an offline mode?
 - In app messaging system (E2E Encryption for GDPR compliance and ISO stuff)
 - 2FA, probably in the future
+- User id hashing
 
 #### Scaling ideas and commercialising
 - Badges for number of donations
