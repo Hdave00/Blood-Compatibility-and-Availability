@@ -125,6 +125,7 @@ function setupProfilePage() {
         initLocationAutocomplete(inputLocation, cityInput, countryInput, stateOrCountyInput, latInput, lngInput);
     }
 
+    // get the email and display it 
     if (displayEmail && !document.getElementById("email")) {
         const emailField = document.createElement("div");
         emailField.className = "mb-3";
