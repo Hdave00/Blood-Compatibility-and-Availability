@@ -240,6 +240,7 @@ function setupProfilePage() {
 function initLocationAutocomplete(locationInput, cityInput, countryInput, stateOrCountyInput, latitudeInput, longitudeInput) {
     console.log("initializing HERE location autocomplete");
 
+    // set vars for the detect button, apikey, to fetch from HERE's database, and the search service process
     const apiKey = "REMOVED";
     const service = new H.service.Platform({ apikey: apiKey }).getSearchService();
     const detectButton = document.getElementById("autodetectLocation");
@@ -266,6 +267,8 @@ function initLocationAutocomplete(locationInput, cityInput, countryInput, stateO
     });
 
     // Auto-detect location using Geolocation API
+
+    // here, we want to first detect for if the user is in the location selection section
     detectButton.addEventListener("click", function () {
         if (navigator.geolocation) {
             navigator.geolocation.getCurrentPosition(
