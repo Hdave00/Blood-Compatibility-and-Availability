@@ -275,8 +275,9 @@ function initLocationAutocomplete(locationInput, cityInput, countryInput, stateO
                 (position) => {
                     const { latitude, longitude } = position.coords;
 
+                    // adding "lang: en" parameter to only display names of places in english
                     service.reverseGeocode(
-                        { at: `${latitude},${longitude}`, lang: "en" },  // add "lang: en" parameter to only display names of places in english
+                        { at: `${latitude},${longitude}`, lang: "en" },  
                         (result) => {
                             const location = result.items[0]?.address;
                             if (location) {
