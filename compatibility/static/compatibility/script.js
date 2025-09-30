@@ -148,6 +148,7 @@ function setupProfilePage() {
 
     form.classList.add("d-none");
 
+    // function to toggle the edit mode in a person's profile page, create the buttons, 
     function toggleEditMode(showEdit) {
         form.classList.toggle("d-none", !showEdit);
         saveBtn.classList.toggle("d-none", !showEdit);
@@ -155,9 +156,11 @@ function setupProfilePage() {
         editBtn.classList.toggle("d-none", showEdit);
     }
 
+    // then set the conditions for edit and cancel buttons 
     editBtn?.addEventListener("click", () => toggleEditMode(true));
     cancelBtn?.addEventListener("click", () => toggleEditMode(false));
 
+    // then show the save button only if there are changes detected
     saveBtn?.addEventListener("click", () => {
         if (!inputUsername || !inputBloodType || !inputLocation) {
             console.error("Form elements missing.");
